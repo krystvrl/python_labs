@@ -1,4 +1,4 @@
-print('Введите ваши инициалы')
+print('инициалы')
 fullname=str(input('ФИО:'))
 name=fullname.split(' ')
 newname=[new for new in name if new]
