@@ -51,8 +51,7 @@ print(f'Результат перевода: {hours}:{minutes}')
 ### **Задание №5**
 #### Программа выводит инициалы пользователя из ФИО и количество введенных символов
 ##
-```
-print('инициалы')  
+``` 
 fullname=str(input('ФИО:'))  
 name=fullname.split(' ')  
 newname=[new for new in name if new]  
