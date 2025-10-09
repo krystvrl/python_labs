@@ -74,7 +74,7 @@ def format_record(rec: tuple[str, str, float]) -> str:
         return TypeError
     if len(rec)!=3:
         raise ValueError
-    if type(rec[2]) is not int and type(rec[2]) is not float:
+    if type(rec[2]) is not float:
         raise TypeError
     if len(rec[1])==0:
         raise ValueError
