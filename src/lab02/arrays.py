@@ -15,8 +15,9 @@ print(f"unique_sorted\n[3, 1, 2, 1, 3] -> {unique_sorted([3, 1, 2, 1, 3])}\n[] -
 def flatten(mat: list[list | tuple]) -> list:
     result=[]
     for object in mat:
-        if type(object) is not list or not tuple:
-            return TypeError
+        for item in object:
+            if type(item) is not int or not float:
+                return TypeError
         else:
             for item in object:
                 result.append(item)
