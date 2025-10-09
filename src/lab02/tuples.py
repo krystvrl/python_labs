@@ -1,8 +1,14 @@
 def format_record(rec: tuple[str, str, float]) -> str:
+    if not isinstance(rec, tuple):
+        return TypeError
+    if len(rec)!=3:
+        raise ValueError
     if type(rec[2]) is not int and type(rec[2]) is not float:
         raise TypeError
     if len(rec[1])==0:
         raise ValueError
+    if not isinstance(rec[0], str):
+        return TypeError
     name_parts=rec[0].strip().split()
     if len(name_parts)==3:
         n1, n2, n3 = name_parts
