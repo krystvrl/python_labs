@@ -12,4 +12,7 @@ def format_record(rec: tuple[str, str, float]) -> str:
         return f"{n1.capitalize()} {n2[0].upper()}., гр. {rec[1].upper()}, GPA {rec[2]:.2f}"
     else:
         raise ValueError
-print(f'format_record\n[("Иванов Иван Иванович", "BIVT-25", 4.6)] -> {format_record([("Иванов Иван Иванович", "BIVT-25", 4.6)])}\n[("Петров Пётр", "IKBO-12", 5.0)] -> {format_record([("Петров Пётр", "IKBO-12", 5.0)])}\n[("Петров Пётр Петрович", "IKBO-12", 5.0)] -> {format_record([("Петров Пётр Петрович", "IKBO-12", 5.0)])}\n[("  сидорова  анна   сергеевна ", "ABB-01", 3.999)] -> {format_record([("  сидорова  анна   сергеевна ", "ABB-01", 3.999)])}')
+print('tuples')
+print("(\"Иванов Иван Иванович\", \"BIVT-25\", 4.6) ->", format_record(("Иванов Иван Иванович", "BIVT-25", 4.6)))
+print("(\"Петров Пётр\", \"IKBO-12\", 5.0) ->", format_record(("Петров Пётр", "IKBO-12", 5.0)))
+print("(\" сидорова анна сергеевна \", \"ABB-01\", 3.999) ->", format_record((" сидорова анна сергеевна ", "ABB-01", 3.999)))
