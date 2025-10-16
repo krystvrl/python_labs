@@ -88,8 +88,6 @@ def text_stats(n: str):
     print(f'Топ-5:')
     top=top_n(freq)
     for word, value in top:
-        print(f"{word}: {value}")
-print(text_stats('Привет, мир! Привет!!!'))
 ```
 ![](images/lab03/text_stats.jpg)
 
