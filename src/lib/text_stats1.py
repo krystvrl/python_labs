@@ -8,6 +8,6 @@ def text_stats(n: str):
     print(f'Уникальных слов: {len(freq)}')
     print(f'Топ-5:')
     top=top_n(freq)
-    for key, value in top:
-        print(f"{key}: {value}")
+    for word, value in top:
+        print(f"{word}: {value}")
 print(text_stats('Привет, мир! Привет!!!'))
