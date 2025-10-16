@@ -8,15 +8,11 @@ import unicodedata
 def normalize(text: str, *, casefold: bool = True, yo2e: bool = True) -> str:
     if casefold:
         text = text.casefold()
-    
     if yo2e:
         text = text.replace('ё', 'е').replace('Ё', 'Е')
     # Заменяем управляющие символы и невидимые символы на пробелы
     text = ''.join(char if char.isprintable() or char.isspace() else ' ' for char in text)
-
-
     text = re.sub(r'\s+', ' ', text)
-
     # Убираем пробелы в начале и конце
     return text.strip()
 print('normalize')
@@ -29,7 +25,6 @@ print("\"  двойные   пробелы  \" ->", normalize("  двойные 
 def tokenize(text: str) -> list[str]:
     pattern = r'[\w]+(?:-[\w]+)*'
     tokens = re.findall(pattern, text)
-    
     return tokens
 print('tokenize')
 print("\"привет мир\" ->", tokenize(("привет мир")))
