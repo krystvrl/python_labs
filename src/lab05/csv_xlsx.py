@@ -49,3 +49,5 @@ def csv_to_xlsx(csv_path: str, xlsx_path: str) -> None:
         ws.column_dimensions[column].width = adjusted_width
 
     wb.save(xlsx_file)
+
+csv_to_xlsx('data\samples\people.csv','data\out\people_from_csv.xlsx')

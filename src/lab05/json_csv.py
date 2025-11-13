@@ -64,3 +64,6 @@ def csv_to_json(csv_path: str, json_path: str) -> None:
     
     with json_file.open("w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+
+json_to_csv('data\samples\people.json','data\out\people_from_json.csv')
+csv_to_json('data\samples\cities.csv','data\out\cities_from_csv.json')
