@@ -40,6 +40,7 @@ def main():
 if __name__ == "__main__":
     main()
 
+csv_to_xlsx('data\samples\people.csv','data\out\csv2xlsx.xlsx')
 #python -m lab06.src.cli_convert json2csv --in data/samples/people.json --out data/out/peoplejson2csv.csv 
 #python -m lab06.src.cli_convert csv2json --in data/samples/cities.csv --out data/out/citiescsv2json.json
 #python -m lab06.src.cli_convert csv2xlsx --in data/samples/people.csv --out data/out/peoplecsv2xlsx.xlsx 
