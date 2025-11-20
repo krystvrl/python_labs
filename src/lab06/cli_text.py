@@ -1,7 +1,10 @@
 import argparse
+import sys, os
 from pathlib import Path
-from lib.text import *
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from lib.text import *
 
 def main():
     parser = argparse.ArgumentParser(description="CLI‑утилиты лабораторной №6")
@@ -61,5 +64,5 @@ def main():
 if __name__ == "__main__":
     main()
 
-#python -m lab06.src.cli_text cat --input data/samples/people.csv -n
-#python -m lab06.src.cli_text stats --input data/lab04/input.txt
+#python -m src.lab06.cli_text cat --input data/samples/people.csv -n
+#python -m src.lab06.cli_text stats --input data/input.txt
