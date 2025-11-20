@@ -2,43 +2,53 @@
 ### Пример 1. Подкоманды в одном CLI
 ``` python
 import argparse
+import os, sys
 from pathlib import Path
-from lib.text import *
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from lib.text import *
 
 def main():
     parser = argparse.ArgumentParser(description="CLI‑утилиты лабораторной №6")
-    subparsers = parser.add_subparsers(dest="command")
+    subparsers = parser.add_subparsers(dest="command", required=True)  # Добавлен required=True
 
-    # подкоманда cat 
+    # подкоманда cat
     cat_parser = subparsers.add_parser("cat", help="Вывести содержимое файла")
-    cat_parser.add_argument("--input", required=True, help="Путь к файлу для вывода")
+    cat_parser.add_argument("--input", required=True)
     cat_parser.add_argument("-n", action="store_true", help="Нумеровать строки")
 
-    # подкоманда stats 
+    # подкоманда stats
     stats_parser = subparsers.add_parser("stats", help="Частоты слов")
-    stats_parser.add_argument("--input", required=True, help="Путь к текстовому файлу")
-    stats_parser.add_argument("--top", type=int, default=5, help="Количество топ-слов")
+    stats_parser.add_argument("--input", required=True)
+    stats_parser.add_argument("--top", type=int, default=5)
 
     args = parser.parse_args()
 
-    file_path = Path(args.input)
-    if not file_path.exists():
-        parser.error(f"Файл '{args.input}' не найден")
 
     if args.command == "cat":
+        file_path = Path(args.input)
+        if not file_path.exists():
+            parser.error(f"Файл '{args.input}' не найден")
+            
         try:
-            with file_path.open("r", encoding="utf-8") as f:
-                for i, line in enumerate(f, start=1):
-                    line = line.rstrip("\n")
+            with open(args.input, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+                for i, line in enumerate(lines, 1):
                     if args.n:
-                        print(f"{i}: {line}")
+                        print(f"{i:6d}\t{line.rstrip()}")
                     else:
-                        print(line)
+                        print(line.rstrip())
+        except FileNotFoundError:
+            sys.exit(f"Ошибка: файл {args.input} не найден")
         except Exception as e:
-            parser.error(f"Ошибка при чтении файла: {e}")
+            sys.exit(f"Ошибка: {e}")
 
     elif args.command == "stats":
+        file_path = Path(args.input)
+        if not file_path.exists():
+            parser.error(f"Файл '{args.input}' не найден")
+            
         try:
             with file_path.open("r", encoding="utf-8") as f:
                 text = f.read()
@@ -55,12 +65,16 @@ def main():
             print(f"Топ {args.top} слов:")
             for word, count in top_words:
                 print(f"{word}: {count}")
-
+                
+        except FileNotFoundError:
+            sys.exit(f"Ошибка: файл {args.input} не найден")
         except Exception as e:
-            parser.error(f"Ошибка при чтении файла: {e}")
+            sys.exit(f"Ошибка: {e}")
 
     else:
+        # Если команда не указана, показываем справку
         parser.print_help()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
@@ -75,43 +89,37 @@ if __name__ == "__main__":
 ### Пример 2. CLI‑конвертер
 ``` python
 import argparse
-from lib.json_csv import *
-from lib.csv_xlsx import *
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from lab05.json_csv import json_to_csv, csv_to_json
+from lab05.csv_xlsx import csv_to_xlsx
 
 def main():
-    parser = argparse.ArgumentParser(description="Конвертер JSON↔CSV, CSV→XLSX")
-    sub = parser.add_subparsers(dest="cmd")
+    parser = argparse.ArgumentParser(description="Конвертеры данных")
+    sub = parser.add_subparsers(dest="command")
 
-    # json → csv
-    json2csv_parser = sub.add_parser("json2csv")
-    json2csv_parser.add_argument("--in", dest="input", required=True, help="Путь к входному JSON")
-    json2csv_parser.add_argument("--out", dest="output", required=True, help="Путь к выходному CSV")
+    parser1 = sub.add_parser("json2csv")
+    parser1.add_argument("--in", dest="input", required=True)
+    parser1.add_argument("--out", dest="output", required=True)
 
-    # csv → json
-    csv2json_parser = sub.add_parser("csv2json")
-    csv2json_parser.add_argument("--in", dest="input", required=True, help="Путь к входному CSV")
-    csv2json_parser.add_argument("--out", dest="output", required=True, help="Путь к выходному JSON")
+    parser2 = sub.add_parser("csv2json")
+    parser2.add_argument("--in", dest="input", required=True)
+    parser2.add_argument("--out", dest="output", required=True)
 
-    # csv → xlsx
-    csv2xlsx_parser = sub.add_parser("csv2xlsx")
-    csv2xlsx_parser.add_argument("--in", dest="input", required=True, help="Путь к входному CSV")
-    csv2xlsx_parser.add_argument("--out", dest="output", required=True, help="Путь к выходному XLSX")
+    p3 = sub.add_parser("csv2xlsx")
+    p3.add_argument("--in", dest="input", required=True)
+    p3.add_argument("--out", dest="output", required=True)
 
     args = parser.parse_args()
-
-    input_path = Path(args.input)
-    if not input_path.exists():
-        parser.error(f"Входной файл '{args.input}' не найден")
-
-    if args.cmd == "json2csv":
-        json_to_csv(args.input, args.output)
-    elif args.cmd == "csv2json":
+    if args.command == "json2csv":
+        json_to_csv(args.input, args.output)    
+    elif args.command == "csv2json":
         csv_to_json(args.input, args.output)
-    elif args.cmd == "csv2xlsx":
+    elif args.command == "csv2xlsx":
         csv_to_xlsx(args.input, args.output)
-    else:
-        parser.print_help()
-
 
 if __name__ == "__main__":
     main()
