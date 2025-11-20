@@ -1,5 +1,5 @@
 import argparse
-import sys, os
+import os, sys
 from pathlib import Path
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -8,36 +8,44 @@ from lib.text import *
 
 def main():
     parser = argparse.ArgumentParser(description="CLI‑утилиты лабораторной №6")
-    subparsers = parser.add_subparsers(dest="command")
+    subparsers = parser.add_subparsers(dest="command", required=True)  # Добавлен required=True
 
-    # подкоманда cat 
+    # подкоманда cat
     cat_parser = subparsers.add_parser("cat", help="Вывести содержимое файла")
-    cat_parser.add_argument("--input", required=True, help="Путь к файлу для вывода")
+    cat_parser.add_argument("--input", required=True)
     cat_parser.add_argument("-n", action="store_true", help="Нумеровать строки")
 
-    # подкоманда stats 
+    # подкоманда stats
     stats_parser = subparsers.add_parser("stats", help="Частоты слов")
-    stats_parser.add_argument("--input", required=True, help="Путь к текстовому файлу")
-    stats_parser.add_argument("--top", type=int, default=5, help="Количество топ-слов")
+    stats_parser.add_argument("--input", required=True)
+    stats_parser.add_argument("--top", type=int, default=5)
 
     args = parser.parse_args()
-    file_path = Path(args.input)
-    if not file_path.exists():
-        parser.error(f"Файл '{args.input}' не найден")
+
 
     if args.command == "cat":
+        file_path = Path(args.input)
+        if not file_path.exists():
+            parser.error(f"Файл '{args.input}' не найден")
+            
         try:
-            with file_path.open("r", encoding="utf-8") as f:
-                for i, line in enumerate(f, start=1):
-                    line = line.rstrip("\n")
+            with open(args.input, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+                for i, line in enumerate(lines, 1):
                     if args.n:
-                        print(f"{i}: {line}")
+                        print(f"{i:6d}\t{line.rstrip()}")
                     else:
-                        print(line)
+                        print(line.rstrip())
+        except FileNotFoundError:
+            sys.exit(f"Ошибка: файл {args.input} не найден")
         except Exception as e:
-            parser.error(f"Ошибка при чтении файла: {e}")
+            sys.exit(f"Ошибка: {e}")
 
     elif args.command == "stats":
+        file_path = Path(args.input)
+        if not file_path.exists():
+            parser.error(f"Файл '{args.input}' не найден")
+            
         try:
             with file_path.open("r", encoding="utf-8") as f:
                 text = f.read()
@@ -54,15 +62,19 @@ def main():
             print(f"Топ {args.top} слов:")
             for word, count in top_words:
                 print(f"{word}: {count}")
-
+                
+        except FileNotFoundError:
+            sys.exit(f"Ошибка: файл {args.input} не найден")
         except Exception as e:
-            parser.error(f"Ошибка при чтении файла: {e}")
+            sys.exit(f"Ошибка: {e}")
 
     else:
+        # Если команда не указана, показываем справку
         parser.print_help()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
-
 #python -m src.lab06.cli_text cat --input data/samples/people.csv -n
-#python -m src.lab06.cli_text stats --input data/input.txt
+#python -m src.lab06.cli_text stats --input data/samples/people.csv
+#python -m src.lab06.cli_text --help
