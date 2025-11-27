@@ -1,132 +1,178 @@
-# Лабораторная работа №6
-### Пример 1. Подкоманды в одном CLI
+# Лабораторная работа №7
+### Тесты для lib/text.py
 ``` python
-import argparse
-import os, sys
-from pathlib import Path
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from lib.text import *
-
-def main():
-    parser = argparse.ArgumentParser(description="CLI‑утилиты лабораторной №6")
-    subparsers = parser.add_subparsers(dest="command", required=True)  # Добавлен required=True
-
-    # подкоманда cat
-    cat_parser = subparsers.add_parser("cat", help="Вывести содержимое файла")
-    cat_parser.add_argument("--input", required=True)
-    cat_parser.add_argument("-n", action="store_true", help="Нумеровать строки")
-
-    # подкоманда stats
-    stats_parser = subparsers.add_parser("stats", help="Частоты слов")
-    stats_parser.add_argument("--input", required=True)
-    stats_parser.add_argument("--top", type=int, default=5)
-
-    args = parser.parse_args()
-
-
-    if args.command == "cat":
-        file_path = Path(args.input)
-        if not file_path.exists():
-            parser.error(f"Файл '{args.input}' не найден")
-            
-        try:
-            with open(args.input, 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-                for i, line in enumerate(lines, 1):
-                    if args.n:
-                        print(f"{i:6d}\t{line.rstrip()}")
-                    else:
-                        print(line.rstrip())
-        except FileNotFoundError:
-            sys.exit(f"Ошибка: файл {args.input} не найден")
-        except Exception as e:
-            sys.exit(f"Ошибка: {e}")
-
-    elif args.command == "stats":
-        file_path = Path(args.input)
-        if not file_path.exists():
-            parser.error(f"Файл '{args.input}' не найден")
-            
-        try:
-            with file_path.open("r", encoding="utf-8") as f:
-                text = f.read()
-            
-            normalized = normalize(text)
-            words = tokenize(normalized)
-            freq = count_freq(words)
-            top_words = top_n(freq, args.top)
-
-            if not top_words:
-                print("Слова не найдены в файле")
-                return
-
-            print(f"Топ {args.top} слов:")
-            for word, count in top_words:
-                print(f"{word}: {count}")
-                
-        except FileNotFoundError:
-            sys.exit(f"Ошибка: файл {args.input} не найден")
-        except Exception as e:
-            sys.exit(f"Ошибка: {e}")
-
-    else:
-        # Если команда не указана, показываем справку
-        parser.print_help()
-        sys.exit(1)
-
-if __name__ == "__main__":
-    main()
-```
-![cat](images/lab06/cat.jpg)
-![stats](images/lab06/stats.jpg)
-
-Меню помощи если не введена команда / --help
-![help](images/lab06/help.jpg)
-
-
-### Пример 2. CLI‑конвертер
-``` python
-import argparse
-import os
+import pytest
 import sys
+import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from lab05.json_csv import json_to_csv, csv_to_json
-from lab05.csv_xlsx import csv_to_xlsx
+from lib.text import normalize, tokenize, count_freq, top_n
 
-def main():
-    parser = argparse.ArgumentParser(description="Конвертеры данных")
-    sub = parser.add_subparsers(dest="command")
 
-    parser1 = sub.add_parser("json2csv")
-    parser1.add_argument("--in", dest="input", required=True)
-    parser1.add_argument("--out", dest="output", required=True)
+@pytest.mark.parametrize(
+    "source, expected",
+    [
+        ("ПрИвЕт\nМИр\t", "привет мир"),  # обычный текст + спецсимволы
+        ("ёжик, Ёлка", "ежик, елка"),  # буквы с разным регистром
+        ("Hello\r\nWorld", "hello world"),  # английский текст
+        ("  двойные   пробелы  ", "двойные пробелы"),  # лишние пробелы
+        ("", ""),  # пустая строка
+        ("\t\n   ", ""),  # только пробельные символы
+    ],
+)
+def test_normalize(source, expected):
+    assert normalize(source) == expected
 
-    parser2 = sub.add_parser("csv2json")
-    parser2.add_argument("--in", dest="input", required=True)
-    parser2.add_argument("--out", dest="output", required=True)
 
-    p3 = sub.add_parser("csv2xlsx")
-    p3.add_argument("--in", dest="input", required=True)
-    p3.add_argument("--out", dest="output", required=True)
+@pytest.mark.parametrize(
+    "source, expected",
+    [
+        ("привет мир", ["привет", "мир"]),  # обычный текст
+        ("один, два, три!", ["один", "два", "три"]),  # спецсимволы и знаки препинания
+        ("", []),  # пустая строка
+        ("   много   пробелов   ", ["много", "пробелов"]),  # повторяющиеся пробелы
+        ("слово слово слово", ["слово", "слово", "слово"]),  # повторяющиеся слова
+    ],
+)
+def test_tokenize(source, expected):
+    assert tokenize(source) == expected
 
-    args = parser.parse_args()
-    if args.command == "json2csv":
-        json_to_csv(args.input, args.output)    
-    elif args.command == "csv2json":
-        csv_to_json(args.input, args.output)
-    elif args.command == "csv2xlsx":
-        csv_to_xlsx(args.input, args.output)
 
-if __name__ == "__main__":
-    main()
+@pytest.mark.parametrize(
+    "tokens, expected",
+    [
+        (["a", "b", "a", "c", "b", "a"], {"a": 3, "b": 2, "c": 1}),
+        ([], {}),
+    ],
+)
+def test_count_freq(tokens, expected):
+    assert count_freq(tokens) == expected
+
+
+@pytest.mark.parametrize(
+    "freq_dict, expected",
+    [
+        ({"a": 3, "b": 2, "c": 1}, [("a", 3), ("b", 2), ("c", 1)]),  # обычный случай
+        (
+            {
+                "яблоко": 2,
+                "апельсин": 2,
+                "банан": 2,
+            },  # одинаковые частоты → сортировка по алфавиту
+            [("апельсин", 2), ("банан", 2), ("яблоко", 2)],
+        ),
+        ({}, []),  # пустой словарь
+        (
+            {
+                "a": 5,
+                "b": 4,
+                "c": 3,
+                "d": 2,
+                "e": 1,
+                "f": 1,
+            },  # больше 5 элементов при n=5
+            [("a", 5), ("b", 4), ("c", 3), ("d", 2), ("e", 1)],
+        ),
+    ],
+)
+def test_top_n(freq_dict, expected):
+    assert top_n(freq_dict) == expected
 ```
-![csv](images/lab06/csv.jpg)
-![json](images/lab06/json.jpg)
-![xlsx](images/lab06/xlsx.jpg)
 
-Меню помощи после введения подкоманды и --help
-![subhelp](images/lab06/subhelp.jpg)
+### Тесты для lib/json_csv.py
+``` python
+import json
+import csv
+import pytest
+from pathlib import Path
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from lib.json_csv import json_to_csv, csv_to_json
+
+
+def test_json_to_csv_roundtrip(tmp_path: Path):  # Успешная конвертация JSON to CSV
+    src = tmp_path / "people.json"
+    dst = tmp_path / "people.csv"
+
+    data = [
+        {"name": "Alice", "age": 22},
+        {"name": "Bob", "age": 25},
+    ]
+
+    src.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+
+    json_to_csv(str(src), str(dst))
+
+    with dst.open(encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+
+    assert len(rows) == 2
+    assert rows[0]["name"] == "Alice"
+    assert rows[1]["age"] == "25"
+
+
+def test_csv_to_json_roundtrip(tmp_path: Path):  # Успешная конвертация CSV to JSON
+    src = tmp_path / "people.csv"
+    dst = tmp_path / "people.json"
+
+    with src.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["name", "age"])
+        writer.writeheader()
+        writer.writerow({"name": "Alice", "age": "22"})
+        writer.writerow({"name": "Bob", "age": "25"})
+
+    csv_to_json(str(src), str(dst))
+
+    data = json.loads(dst.read_text(encoding="utf-8"))
+
+    assert isinstance(data, list)
+    assert len(data) == 2
+    assert data[0]["name"] == "Alice"
+    assert data[1]["age"] == "25"
+
+
+def test_json_to_csv_invalid_json(
+    tmp_path: Path,
+):  # Входной файл "сломан"/не является корректным файлом JSON
+    src = tmp_path / "broken.json"
+    dst = tmp_path / "output.csv"
+    src.write_text("not a json", encoding="utf-8")
+
+    with pytest.raises(ValueError):
+        json_to_csv(str(src), str(dst))
+
+
+def test_csv_to_json_invalid_csv(
+    tmp_path: Path,
+):  # Входной файл "сломан"/не является корректным файлом CSV
+    src = tmp_path / "broken.csv"
+    dst = tmp_path / "output.json"
+    src.write_text(",,,\n,,", encoding="utf-8")
+
+    with pytest.raises(ValueError):
+        csv_to_json(str(src), str(dst))
+
+
+def test_missing_file():  # Входного файла не существует
+    with pytest.raises(FileNotFoundError):
+        json_to_csv("no_such_file.json", "output.csv")
+
+
+def test_invalid_suffix_to_json(tmp_path: Path):  # Входной файл не CSV
+    src = tmp_path / "input.txt"
+    dst = tmp_path / "output.json"
+    src.write_text("This is 100% json, trust me", encoding="utf-8")
+    with pytest.raises(ValueError):
+        csv_to_json(str(src), str(dst))
+
+```
+Запуск автотестов через pytest
+![testresults](/Year1_Sem1/lab07/images/sucessfultests.jpg)
+
+Проверка форматирования black --check .
+![black](/Year1_Sem1/lab07/images/black.jpg)
+
+

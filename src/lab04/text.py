@@ -6,14 +6,16 @@ def normalize(text: str, *, casefold: bool = True, yo2e: bool = True) -> str:
     # if text=='':
     #     return ''
     if casefold:
-        text=text.casefold()
+        text = text.casefold()
     if yo2e:
-        text=text.replace('ё','е').replace('Ё','Е')
-    text=' '.join(text.strip().split())
+        text = text.replace("ё", "е").replace("Ё", "Е")
+    text = " ".join(text.strip().split())
     return text
+
 
 def tokenize(text: str) -> list[str]:
     import re
+
     return re.findall(r"\w+(?:-\w+)*", text)
     # if type(text) is not str:
     #     raise TypeError('Нужна строка')
@@ -35,16 +37,17 @@ def tokenize(text: str) -> list[str]:
 
 def count_freq(tokens: list[str]) -> dict[str, int]:
     if type(tokens) is not list:
-        raise TypeError('Нужен список')
+        raise TypeError("Нужен список")
     return {word: tokens.count(word) for word in set(tokens)}
 
 
 def top_n(freq: dict[str, int], n: int = 5) -> list[tuple[str, int]]:
     if type(freq) is not dict:
-        raise TypeError('Нужны словари')
+        raise TypeError("Нужны словари")
     return sorted(freq.items(), key=lambda item: (-item[1], item[0]))[:n]
+
 
 def top_no(freq: dict[str, int]) -> list[tuple[str, int]]:
     if type(freq) is not dict:
-        raise TypeError('Нужны словари')
+        raise TypeError("Нужны словари")
     return sorted(freq.items(), key=lambda item: (-item[1], item[0]))

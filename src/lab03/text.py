@@ -12,27 +12,28 @@ def normalize(text: str, *, casefold: bool = True, yo2e: bool = True) -> str:
     """
     if casefold:
         text = text.casefold()
-    
+
     if yo2e:
-        text = text.replace('ё', 'е').replace('Ё', 'Е')
-    
+        text = text.replace("ё", "е").replace("Ё", "Е")
+
     # Заменяем управляющие символы и невидимые символы на пробелы
-    text = ''.join(char if char.isprintable() or char.isspace() else ' ' for char in text)
-    
+    text = "".join(
+        char if char.isprintable() or char.isspace() else " " for char in text
+    )
+
     # Схлопываем множественные пробелы в один
-    text = re.sub(r'\s+', ' ', text)
-    
+    text = re.sub(r"\s+", " ", text)
+
     # Убираем пробелы в начале и конце
     return text.strip()
 
 
-
 def tokenize(text: str) -> list[str]:
-    
+
     # Регулярное выражение для поиска слов (буквы/цифры/подчёркивание + дефис внутри)
-    pattern = r'[\w]+(?:-[\w]+)*'
+    pattern = r"[\w]+(?:-[\w]+)*"
     tokens = re.findall(pattern, text)
-    
+
     return tokens
 
 
@@ -44,7 +45,6 @@ def count_freq(tokens: list[str]) -> dict[str, int]:
     for token in tokens:
         freq[token] = freq.get(token, 0) + 1
     return freq
-
 
 
 def top_n(freq: dict[str, int], n: int = 5) -> list[tuple[str, int]]:

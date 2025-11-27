@@ -2,13 +2,16 @@ import argparse
 import os, sys
 from pathlib import Path
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from lib.text import *
 
+
 def main():
     parser = argparse.ArgumentParser(description="CLI‑утилиты лабораторной №6")
-    subparsers = parser.add_subparsers(dest="command", required=True)  # Добавлен required=True
+    subparsers = parser.add_subparsers(
+        dest="command", required=True
+    )  # Добавлен required=True
 
     # подкоманда cat
     cat_parser = subparsers.add_parser("cat", help="Вывести содержимое файла")
@@ -22,14 +25,13 @@ def main():
 
     args = parser.parse_args()
 
-
     if args.command == "cat":
         file_path = Path(args.input)
         if not file_path.exists():
             parser.error(f"Файл '{args.input}' не найден")
-            
+
         try:
-            with open(args.input, 'r', encoding='utf-8') as f:
+            with open(args.input, "r", encoding="utf-8") as f:
                 lines = f.readlines()
                 for i, line in enumerate(lines, 1):
                     if args.n:
@@ -45,11 +47,11 @@ def main():
         file_path = Path(args.input)
         if not file_path.exists():
             parser.error(f"Файл '{args.input}' не найден")
-            
+
         try:
             with file_path.open("r", encoding="utf-8") as f:
                 text = f.read()
-            
+
             normalized = normalize(text)
             words = tokenize(normalized)
             freq = count_freq(words)
@@ -62,7 +64,7 @@ def main():
             print(f"Топ {args.top} слов:")
             for word, count in top_words:
                 print(f"{word}: {count}")
-                
+
         except FileNotFoundError:
             sys.exit(f"Ошибка: файл {args.input} не найден")
         except Exception as e:
@@ -73,8 +75,9 @@ def main():
         parser.print_help()
         sys.exit(1)
 
+
 if __name__ == "__main__":
     main()
-#python -m src.lab06.cli_text cat --input data/samples/people.csv -n
-#python -m src.lab06.cli_text stats --input data/samples/people.csv
-#python -m src.lab06.cli_text --help
+# python -m src.lab06.cli_text cat --input data/samples/people.csv -n
+# python -m src.lab06.cli_text stats --input data/samples/people.csv
+# python -m src.lab06.cli_text --help

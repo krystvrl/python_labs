@@ -2,10 +2,11 @@ import argparse
 import os
 import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from lab05.json_csv import json_to_csv, csv_to_json
 from lab05.csv_xlsx import csv_to_xlsx
+
 
 def main():
     parser = argparse.ArgumentParser(description="Конвертеры данных")
@@ -25,16 +26,17 @@ def main():
 
     args = parser.parse_args()
     if args.command == "json2csv":
-        json_to_csv(args.input, args.output)    
+        json_to_csv(args.input, args.output)
     elif args.command == "csv2json":
         csv_to_json(args.input, args.output)
     elif args.command == "csv2xlsx":
         csv_to_xlsx(args.input, args.output)
 
+
 if __name__ == "__main__":
     main()
 
-#python -m src.lab06.cli_convert json2csv --in data/samples/people.json --out data/out/peoplejson2csv.csv 
-#python -m src.lab06.cli_convert csv2json --in data/samples/cities.csv --out data/out/citiescsv2json.json
-#python -m src.lab06.cli_convert csv2xlsx --in data/samples/people.csv --out data/out/peoplecsv2xlsx.xlsx 
-#python -m src.lab06.cli_convert json2csv --help
+# python -m src.lab06.cli_convert json2csv --in data/samples/people.json --out data/out/peoplejson2csv.csv
+# python -m src.lab06.cli_convert csv2json --in data/samples/cities.csv --out data/out/citiescsv2json.json
+# python -m src.lab06.cli_convert csv2xlsx --in data/samples/people.csv --out data/out/peoplecsv2xlsx.xlsx
+# python -m src.lab06.cli_convert json2csv --help

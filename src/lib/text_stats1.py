@@ -1,13 +1,17 @@
 from text import *
+
+
 def text_stats(n: str):
-    n=input()
-    norm= normalize(n)
-    tokens=tokenize(norm)
-    freq=count_freq(tokens)
-    print(f'Всего слов: {len(tokens)}')
-    print(f'Уникальных слов: {len(freq)}')
-    print(f'Топ-5:')
-    top=top_n(freq)
+    n = input()
+    norm = normalize(n)
+    tokens = tokenize(norm)
+    freq = count_freq(tokens)
+    print(f"Всего слов: {len(tokens)}")
+    print(f"Уникальных слов: {len(freq)}")
+    print(f"Топ-5:")
+    top = top_n(freq)
     for word, value in top:
         print(f"{word}: {value}")
-print(text_stats('Привет, мир! Привет!!!'))
+
+
+print(text_stats("Привет, мир! Привет!!!"))
